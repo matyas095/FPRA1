@@ -1,10 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-Q_V = np.array([1.52, 1.84, 3.38, 2.98, 2.63, 2.66, 2.72, 2.63, 1.95, 1.34, 2.17])
+Q_V = np.array([1.52, 1.84, 3.38, 2.98, 2.63, 2.66, 2.72, 2.63, 1.95, 1.34, 2.17]) # , 1.34, 2.17
 
 p2 = 99860.0
-p1 = np.array([100408, 100213, 100193, 100271, 100320, 100418, 100281, 100320, 100330, 100144, 100428])
+p1 = np.array([100408, 100213, 100193, 100271, 100320, 100418, 100281, 100320, 100330, 100144, 100428]) # , 100144, 100428
 
 y = (p1**2 - p2**2) / (2 * p2)
 
@@ -26,6 +26,8 @@ plt.grid(True, linestyle=':', alpha=0.7)
 plt.legend(fontsize=11)
 
 plt.tight_layout()
-plt.show()
+# plt.show()
+
+plt.savefig('zavislost.svg', format='svg', bbox_inches='tight');
 
 print(f"Směrnice fitu (a) v SI jednotkách [Pa*s/m^3]: {a:.4e}")
