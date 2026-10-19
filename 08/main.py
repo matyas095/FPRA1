@@ -23,21 +23,22 @@ Z2 = phi_2_vals.reshape(12, 12)
 fig1 = plt.figure(figsize=(10, 7))
 ax1 = fig1.add_subplot(projection='3d')
 surf1 = ax1.plot_surface(X, Y, Z1, cmap='viridis', edgecolor='none')
-ax1.set_title('3D graf naměřeného potenciálu (Konfigurace 1)', fontsize=14)
-ax1.set_xlabel('Souřadnice X [-]')
-ax1.set_ylabel('Souřadnice Y [-]')
-ax1.set_zlabel('Potenciál phi [V]')
+ax1.set_xlabel('X [-]')
+ax1.set_ylabel('Y [-]')
+ax1.set_zlabel(r'$\varphi_1$ [V]')
 fig1.colorbar(surf1, shrink=0.5, aspect=5, label='Potenciál [V]')
 
 # --- 2. GRAF: Konfigurace 2 (phi_2_vals) ---
 fig2 = plt.figure(figsize=(10, 7))
 ax2 = fig2.add_subplot(projection='3d')
 surf2 = ax2.plot_surface(X, Y, Z2, cmap='plasma', edgecolor='none') # Změna barevné palety pro rozlišení
-ax2.set_title('3D graf naměřeného potenciálu (Konfigurace 2)', fontsize=14)
-ax2.set_xlabel('Souřadnice X [-]')
-ax2.set_ylabel('Souřadnice Y [-]')
-ax2.set_zlabel('Potenciál phi [V]')
+ax2.set_xlabel('X [-]')
+ax2.set_ylabel('Y [-]')
+ax2.set_zlabel(r'$\varphi_2$ [V]')
 fig2.colorbar(surf2, shrink=0.5, aspect=5, label='Potenciál [V]')
 
 # Zobrazení obou oken s grafy najednou
 plt.show()
+
+fig1.savefig('potencial_konfigurace_1.svg', format='svg', bbox_inches='tight')
+fig2.savefig('potencial_konfigurace_2.svg', format='svg', bbox_inches='tight')
