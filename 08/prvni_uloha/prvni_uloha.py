@@ -48,4 +48,4 @@ print("\nChyby F pro jednotlivé hodnoty (v N):")
 for i, (m_val, f_val, err_val) in enumerate(zip(hodnoty_m, hodnoty_F, chyby_F)):
     print(f"Měření {i+1}: m = {m_val} g -> F = {f_val:.4f} N ± {err_val:.4f} N")
 
-np.save('hodnoty_F.npy', hodnoty_F)
+np.save('hodnoty/hodnoty_F.npy', hodnoty_F)

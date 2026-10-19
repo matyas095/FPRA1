@@ -16,6 +16,10 @@ U_expr = d * sp.sqrt((2 * F) / (eps0 * S))
 dU_dd = U_expr.diff(d)
 dU_dF = U_expr.diff(F)
 dU_dS = U_expr.diff(S)
+print("Vypsání parciálních derivací:")
+print(sp.latex(dU_dd))
+print(sp.latex(dU_dF))
+print(sp.latex(dU_dS))
 
 # Převedení symbolických výrazů na NumPy funkce
 f_U = sp.lambdify((d, F, S, eps0), U_expr, 'numpy')
@@ -29,17 +33,19 @@ f_dU_dS = sp.lambdify((d, F, S, eps0), dU_dS, 'numpy')
 # ---------------------------------------------------------
 
 # Permitivita vakua (konstanta bez chyby)
-eps0_val = 8.8541878128e-12  # [F/m]
+eps_r = 1.00054
+eps0_t = 8.8541878128e-12  # [F/m]
+eps0_val = eps_r * eps0_t  # [F/m]
 
 # Vstupní naměřené hodnoty (ve základních SI jednotkách: m, N, m^2)
 d_val = np.array([
     15, 14, 13, 12, 11, 10, 9, 8, 7, 6
-])
-F_val = np.load('hodnoty_F.npy')              # Síla v Newtonech
+]) / 1000 # mm -> m
+F_val = np.load('hodnoty/hodnoty_F.npy')              # Síla v Newtonech
 S_val = 0.022689            # Plocha desek v m^2
 
 # Absolutní chyby jednotlivých veličin (ve základních SI jednotkách)
-delta_d = 0.001 / 1000.0    # Chyba vzdálenosti (např. 0.001 mm = 1 µm)
+delta_d = 0.5 / 1000.0    # Chyba vzdálenosti mm -> m
 delta_F = 0.0001            # Chyba síly v Newtonech
 delta_S = 0.0000908         # Chyba plochy v m^2
 
@@ -65,15 +71,25 @@ print("\nVypočetný napětí:")
 for i, (u_val, err_val) in enumerate(zip(U_val, delta_U)):
     print(f"{i+1}: {u_val:.2f} ± {err_val:.2f} U")
 
+np.save('hodnoty/hodnoty_U.npy', U_val)
+np.save('chyby/delta_U.npy', delta_U)
 
+decimal_rounded = 5
 
-U_zaokrouhlene = np.round(U_val, 0)
-delta_zaokrouhlene = np.round(delta_U, 0)
+U_val = U_val / 1000.0
+delta_U = delta_U / 1000.0
 
-vysledky_text = [f"{u:.2f} ± {err:.2f}" for u, err in zip(U_zaokrouhlene, delta_zaokrouhlene)]
+U_zaokrouhlene = np.round(U_val, decimal_rounded)
+delta_zaokrouhlene = np.round(delta_U, decimal_rounded)
+
+formát_str = f"{{:.{decimal_rounded}f}}"
+vysledky_text = [
+    f"{formát_str.format(u)} ± {formát_str.format(err)}"
+    for u, err in zip(U_val, delta_U)
+]
 
 df = pd.DataFrame({
-    r'$U \, [\mathrm{V}]$': vysledky_text
+    r'$U \, [\mathrm{kV}]$': vysledky_text
 })
 
 # Zkopírování rovnou do schránky pro Excel
