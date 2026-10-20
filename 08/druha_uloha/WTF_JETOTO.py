@@ -4,6 +4,8 @@ import numpy as np
 import sympy
 from scipy.optimize import curve_fit
 
+
+
 # --- 1. VSTUPNÍ PARAMETRY A KONSTANTY ---
 delta = 0.9631
 D_mm = 14.2  # průměr koulí jiskřiště [mm]
