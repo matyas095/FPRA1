@@ -150,7 +150,7 @@ plt.plot(
   ),
   zorder=2,
 )
-
+w
 plt.xlabel("$I$ [A]", fontsize=11)
 plt.ylabel(r"$\delta$ [$s^{-1}$]", fontsize=11)
 plt.grid(True, linestyle="--", alpha=0.6)
