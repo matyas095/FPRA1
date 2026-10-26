@@ -21,7 +21,7 @@ y_err = 0.01155
 
 delta_storages = []
 
-for path in subfolders:
+for index, path in enumerate(subfolders, start=1):
     groupName = path.name
 
     firstGroup = np.load(rf"{path}/group_1_data.npy", allow_pickle=True)
@@ -75,7 +75,7 @@ for path in subfolders:
       elinewidth=1,
       capsize=2,
       markersize=5,
-      label=f"Naměřená {groupName} s chybami",
+      label=f"Naměřená data s chybami",
       zorder=1,
     )
 
@@ -92,7 +92,7 @@ for path in subfolders:
     )
 
     plt.xlabel("$t$ [s]", fontsize=11)
-    plt.ylabel("$\\varphi$ [rad]", fontsize=11)
+    plt.ylabel(f"$\\varphi_{index}$ [rad]", fontsize=11)
     plt.grid(True, linestyle="--", alpha=0.6)
     plt.legend(fontsize=10)
     plt.tight_layout()
@@ -135,7 +135,7 @@ plt.errorbar(
   elinewidth=1,
   capsize=2,
   markersize=5,
-  label=f"Gamering",
+  label=fr"Vypočtené hodnot $\delta$ v závislosti na $I$",
   zorder=1,
 )
 
