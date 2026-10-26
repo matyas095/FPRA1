@@ -23,7 +23,7 @@ Z2 = phi_2_vals.reshape(12, 12)
 fig = make_subplots(
     rows=1, cols=2,
     specs=[[{'type': 'scene'}, {'type': 'scene'}]],
-    subplot_titles=('Konfigurace 1 ($\varphi_1$)', 'Konfigurace 2 ($\varphi_2त्र$)'.replace('त्र', ''))
+    subplot_titles=('Konfigurace 1 ($\varphi_1$)', 'Konfigurace 2 ($\varphi_2$)')
 )
 
 # Přidání povrchu pro 1. konfiguraci
