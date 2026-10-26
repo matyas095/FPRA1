@@ -29,9 +29,9 @@ perr = np.sqrt(np.diag(pcov))
 a_opt, b_opt = popt
 
 print(f"--- Výsledky kalibračního fitu ---")
-Param_str = f"Sklon (a) = {a_opt:.4f} ± {perr[0]:.4f}"
+Param_str = f"Sklon (a) = {a_opt:.1f} ± {perr[0]:.1f}"
 print(Param_str)
-print(f"Korekce (b) = {b_opt:.4f} ± {perr[1]:.4f}")
+print(f"Korekce (b) = {b_opt:.1f} ± {perr[1]:.1f}")
 print("-" * 40)
 
 U_smooth = np.linspace(min(U_vals) - 0.2, max(U_vals) + 0.2, 200)
@@ -61,7 +61,7 @@ plt.plot(
     color="r",
     linestyle="-",
     linewidth=2,
-    label=fr"Kalibrační přímka: $n = ({a_opt:.1f}\pm{perr[0]:.1f})\cdot U +({b_opt:+.1f}\pm{perr[1]:.1f})$",
+    label=fr"Kalibrační přímka: $n = a\cdot U + b$",
     zorder=2,
 )
 
