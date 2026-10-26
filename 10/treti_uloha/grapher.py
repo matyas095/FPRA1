@@ -1,5 +1,4 @@
 import numpy as np
-import os
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
 from pathlib import Path
@@ -119,7 +118,20 @@ groupName, delta_vals, delta_err = zip(*delta_storages)
 popt, pcov = curve_fit(exp_func, I_vals, delta_vals, sigma=delta_err, absolute_sigma=True)
 perr = np.sqrt(np.diag(pcov))
 a_opt, b_opt, c_opt = popt
-print(f"Parametry fitu: a = {a_opt:.4f}, b = {b_opt:.4f}, c = {c_opt:.4f}")
+print(f"Parametry fitu: a = {a_opt:.4f} ± {perr[0]:.4f}, b = {b_opt:.4f} ± {perr[1]:.4f}, c = {c_opt:.4f} ± {perr[2]:.4f}")
+
+omega_0 = 3.916
+I_krit = np.log((omega_0 - c_opt) / a_opt) / b_opt
+da = -1.0 / (a_opt * b_opt)
+db = -I_krit / b_opt
+dc = -1.0 / (b_opt * (omega_0 - c_opt))
+
+J = np.array([da, db, dc])
+
+I_krit_err = np.sqrt(np.dot(J, np.dot(pcov, J)))
+
+# 3. Výsledek
+print(f"Vypočtený kritický proud: I_krit = {I_krit:.4f} ± {I_krit_err:.4f} A")
 
 I_smooth = np.linspace(min(I_vals) - 0.03, max(I_vals) + 0.13, 200)
 delta_fit = exp_func(I_smooth, *popt)
