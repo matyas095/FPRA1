@@ -5,7 +5,6 @@ import numpy as np
 import math
 
 def round_val_err(value, error, toText=False):
-  # Convert to standard Python float just in case they are numpy types
   value = float(value)
   error = float(error)
 
@@ -14,29 +13,23 @@ def round_val_err(value, error, toText=False):
     rounded_error = round(error, ndigits)
     rounded_value = round(value, ndigits)
   else:
-    # 1. Find the order of magnitude of the error's first significant digit
     order = math.floor(math.log10(error))
 
-    # If the first significant digit is 1, keep 2 significant digits; otherwise 1
     norm_error = error / (10**order)
     if norm_error < 2:
-      ndigits = -order + 1  # 2 significant digits
+      ndigits = -order + 1
     else:
-      ndigits = -order  # 1 significant digit
+      ndigits = -order
 
-    # Ensure at least 1 decimal place is required (cannot be a whole number)
     ndigits = max(ndigits, 1)
 
     factor = 10**ndigits
 
-    # 2. Round the error to the upper floor (always round up)
     rounded_error = math.ceil(round(error * factor, 10)) / factor
 
-    # 3. Round the value to the exact same decimal place as the error
     rounded_value = round(value, ndigits)
 
   if toText:
-    # Format as string with fixed decimal places FIRST, then replace . with ,
     str_val = f"{rounded_value:.{ndigits}f}".replace(".", ",")
     str_err = f"{rounded_error:.{ndigits}f}".replace(".", ",")
     return f"({str_val} ± {str_err})"
