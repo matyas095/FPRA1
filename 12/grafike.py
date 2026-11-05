@@ -60,12 +60,15 @@ F_mat = np.array([
     ]
 ]) * 10 ** 3
 
+A_as = []
+
 for i, (Q, F) in enumerate(zip(Q_na_druhou, F_mat)):
     a = 4 + i
     print(f"{TextColor.BOLD}{TextColor.UNDERLINE}{TextColor.GREEN}Pro vzdálenost a = {a} cm:{TextColor.END}")
 
     (A_a, b), pcov1 = np.polyfit(Q, F, 1, cov=True)
     A_a_err, b_err = np.sqrt(np.diag(pcov1))
+    A_as.append((A_a, A_a_err))
 
     print(f"{TextColor.BOLD}=== Výsledky fitu ==={TextColor.END}")
     print(
@@ -127,3 +130,61 @@ for i, (Q, F) in enumerate(zip(Q_na_druhou, F_mat)):
 
     svg_name = output_dir / "A_a" / f"{a}.svg"
     plt.savefig(svg_name, format="svg")
+
+
+a_vzd = np.array([
+    4, 5, 6, 7, 8
+])
+a_vys = 1 / (a_vzd ** 2)
+
+
+def idealni_model(x, A_a):
+    return A_a * x
+
+
+(A_a_ideal), pcov = curve_fit(idealni_model, Q, F)
+
+std_err_A = np.sqrt(np.diag(pcov))[0]
+
+print(f"{TextColor.BOLD}=== Výsledky ideálního (b = 0) ==={TextColor.END}")
+print(
+    f"{TextColor.BOLD}{TextColor.UNDERLINE}Ideální Sklon A_a = {round_val_err(A_a_ideal[0], std_err_A, True)}{TextColor.END}\n " +
+    f"╚═({A_a_ideal[0]} ± {std_err_A})\n")
+print("====================================\n")
+
+plt.figure(figsize=(9, 5))
+
+random_color = np.random.rand(3)
+chyba_Q = 0.004
+chyba_F = 0.00012 * 10 ** 3
+
+plt.plot(
+    Q,
+    A_a * Q + b,
+    color="red",
+    label=fr"Fit: $F = A_a\cdot Q^2 + b$",
+)
+
+plt.errorbar(
+    Q,
+    F,
+    xerr=chyba_Q,
+    yerr=chyba_F,
+    fmt="o",
+    color=random_color,
+    ecolor="gray",
+    elinewidth=1,
+    capsize=2,
+    markersize=5,
+    label=f"Vypočtená data s chybami",
+    zorder=1,
+)
+
+plt.xlabel("$Q^2$ [µC]", fontsize=11)
+plt.ylabel(r"$F$ [µN]", fontsize=11)
+plt.grid(True, linestyle="--", alpha=0.6)
+plt.legend(fontsize=10)
+plt.tight_layout()
+
+svg_name = output_dir / "A_a" / f"{a}.svg"
+plt.savefig(svg_name, format="svg")
