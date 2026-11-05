@@ -32,9 +32,3 @@ def round_val_err(value, error, toText=False):
         return f"({str_val} ± {str_err})"
 
     return rounded_value, rounded_error
-
-
-# --- Example Test ---
-val, err = round_val_err(24.5678, 0.0136)
-print(f"Result: ({val} ± {err})")
-# Output: Result: (24.57 ± 0.014)  [0.0136 rounded up with 2 sig figs becomes 0.014]
