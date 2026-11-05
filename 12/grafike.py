@@ -125,5 +125,5 @@ for i, (Q, F) in enumerate(zip(Q_na_druhou, F_mat)):
     plt.legend(fontsize=10)
     plt.tight_layout()
 
-    svg_name = output_dir / "A_a" / f"{i + 1}.svg"
+    svg_name = output_dir / "A_a" / f"{a}.svg"
     plt.savefig(svg_name, format="svg")
