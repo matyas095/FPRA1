@@ -97,14 +97,16 @@ for i, (Q, F) in enumerate(zip(Q_na_druhou, F_mat)):
     plt.figure(figsize=(9, 5))
 
     random_color = np.random.rand(3)
-    chyba_Q = 0.004
+    chyba_Q = 0.004 ** 2
     chyba_F = 0.00012 * 10 ** 6 # µN
 
+    Q_prodlouzene = np.linspace(-0.05, max(Q), 1000)
+
     plt.plot(
-        Q,
-        A_a * Q + b,
+        Q_prodlouzene,
+        A_a * Q_prodlouzene + b,
         color="red",
-        label=fr"Fit: $F = A_a\cdot Q^2 + b$",
+        label=fr"Fit: $F = A_{a}\cdot Q^2 + b$",
     )
 
     plt.errorbar(
