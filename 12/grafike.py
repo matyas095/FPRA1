@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy.optimize import curve_fit
+from matplotlib.ticker import FuncFormatter
 
 from pathlib import Path
 import sys
@@ -100,11 +101,9 @@ for i, (Q, F) in enumerate(zip(Q_na_druhou, F_mat)):
     chyba_Q = 0.004 ** 2
     chyba_F = 0.00012 * 10 ** 6 # µN
 
-    Q_prodlouzene = np.linspace(-0.05, max(Q), 1000)
-
     plt.plot(
-        Q_prodlouzene,
-        A_a * Q_prodlouzene + b,
+        Q,
+        A_a * Q + b,
         color="red",
         label=fr"Fit: $F = A_{a}\cdot Q^2 + b$",
     )
@@ -137,7 +136,7 @@ for i, (Q, F) in enumerate(zip(Q_na_druhou, F_mat)):
 A_as = np.array(A_as)
 a_vzd = np.array([
     4, 5, 6, 7, 8
-]) * 1e-2 # μm
+]) * 1e-2 # m
 a_vys = 1 / (a_vzd ** 2)
 
 def model_prochazejici_pocatkem(x, S):
@@ -160,11 +159,13 @@ plt.figure(figsize=(9, 5))
 random_color = np.random.rand(3)
 chyba_a_vys = 0.2
 
+a_vys_prodlouzene = np.linspace(-0.05, max(a_vys) * 1.1, 1000)
+
 plt.plot(
-    a_vys,
-    S * a_vys,
+    a_vys_prodlouzene,
+    S * a_vys_prodlouzene,
     color="red",
-    label=fr"Fit: $A_a = S \cdot (1/a^2)$",
+    label=fr"Fit: $A_a = S \cdot 1/a^2$",
 )
 
 plt.errorbar(
@@ -173,7 +174,7 @@ plt.errorbar(
     xerr=chyba_a_vys,
     yerr=A_as[:, 1],
     fmt="o",
-    color=random_color,
+    color="black",
     ecolor="gray",
     elinewidth=1,
     capsize=2,
@@ -182,8 +183,13 @@ plt.errorbar(
     zorder=1,
 )
 
-plt.xlabel("$1/a^2$ [µm]", fontsize=11)
-plt.ylabel(r"$F$ [µN]", fontsize=11)
+plt.xlabel(r"$1/a^2$ [$\mathrm{m^{-2}}$]", fontsize=11)
+plt.ylabel(r"$A_a$ [$\mathrm{N/C^2}$]", fontsize=11)
+
+comma_formatter = FuncFormatter(lambda x, pos: f"{x:.2f}".replace(".", ","))
+plt.gca().xaxis.set_major_formatter(comma_formatter)
+plt.gca().yaxis.set_major_formatter(comma_formatter)
+
 plt.grid(True, linestyle="--", alpha=0.6)
 plt.legend(fontsize=10)
 plt.tight_layout()
