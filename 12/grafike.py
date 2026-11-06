@@ -39,26 +39,26 @@ Q = np.array([
     [
         1, 7, 19, 20, 24  # a = 8
     ]
-])
+]) # µC
 Q_na_druhou = Q ** 2
 
 F_mat = np.array([
     [
-        0.0006, 0.0015, 0.0017, 0.0023, 0.0029  # a = 4
+        0.6, 1.5, 1.7, 2.3, 2.9  # a = 4
     ],
     [
-        0.0002, 0.0006, 0.00115, 0.0019, 0.002  # a = 5
+        0.20, 0.60, 1.15, 1.90, 2.00  # a = 5
     ],
     [
-        0.0001, 0.0003, 0.00065, 0.0013, 0.0015  # a = 6
+        0.10, 0.30, 0.65, 1.30, 1.50  # a = 6
     ],
     [
-        0.00008, 0.0003, 0.00052, 0.00097, 0.00123  # a = 7
+        0.08, 0.30, 0.52, 0.97, 1.23  # a = 7
     ],
     [
-        0.00003, 0.00026, 0.00039, 0.0008, 0.0009  # a = 8
+        0.03, 0.26, 0.39, 0.80, 0.90  # a = 8
     ]
-]) * 10 ** 3
+]) * 10 ** 3 # mN -> µN
 
 A_as = []
 
@@ -68,7 +68,7 @@ for i, (Q, F) in enumerate(zip(Q_na_druhou, F_mat)):
 
     (A_a, b), pcov1 = np.polyfit(Q, F, 1, cov=True)
     A_a_err, b_err = np.sqrt(np.diag(pcov1))
-    A_as.append((A_a, A_a_err))
+    A_as.append([A_a, A_a_err])
 
     print(f"{TextColor.BOLD}=== Výsledky fitu ==={TextColor.END}")
     print(
@@ -98,7 +98,7 @@ for i, (Q, F) in enumerate(zip(Q_na_druhou, F_mat)):
 
     random_color = np.random.rand(3)
     chyba_Q = 0.004
-    chyba_F = 0.00012 * 10 ** 3
+    chyba_F = 0.00012 * 10 ** 6 # µN
 
     plt.plot(
         Q,
@@ -130,46 +130,46 @@ for i, (Q, F) in enumerate(zip(Q_na_druhou, F_mat)):
 
     svg_name = output_dir / "A_a" / f"{a}.svg"
     plt.savefig(svg_name, format="svg")
+    plt.close()
 
-
+A_as = np.array(A_as)
 a_vzd = np.array([
     4, 5, 6, 7, 8
-])
+]) * 1e-2 # μm
 a_vys = 1 / (a_vzd ** 2)
 
+def model_prochazejici_pocatkem(x, S):
+    return S * x
 
-def idealni_model(x, A_a):
-    return A_a * x
 
+poptS, pcovS = curve_fit(model_prochazejici_pocatkem, a_vys, A_as[:, 0])
+std_err_S = np.sqrt(np.diag(pcovS))[0]
 
-(A_a_ideal), pcov = curve_fit(idealni_model, Q, F)
-
-std_err_A = np.sqrt(np.diag(pcov))[0]
-
-print(f"{TextColor.BOLD}=== Výsledky ideálního (b = 0) ==={TextColor.END}")
+S = poptS[0]
+print("\n\n\n")
+print(f"{TextColor.BOLD}=== Výsledky sklonu S ==={TextColor.END}")
 print(
-    f"{TextColor.BOLD}{TextColor.UNDERLINE}Ideální Sklon A_a = {round_val_err(A_a_ideal[0], std_err_A, True)}{TextColor.END}\n " +
-    f"╚═({A_a_ideal[0]} ± {std_err_A})\n")
+    f"{TextColor.BOLD}{TextColor.UNDERLINE}Sklon S = {round_val_err(S, std_err_S, True)}{TextColor.END}\n " +
+    f"╚═({S} ± {std_err_S})\n")
 print("====================================\n")
 
 plt.figure(figsize=(9, 5))
 
 random_color = np.random.rand(3)
-chyba_Q = 0.004
-chyba_F = 0.00012 * 10 ** 3
+chyba_a_vys = 0.2
 
 plt.plot(
-    Q,
-    A_a * Q + b,
+    a_vys,
+    S * a_vys,
     color="red",
-    label=fr"Fit: $F = A_a\cdot Q^2 + b$",
+    label=fr"Fit: $A_a = S \cdot (1/a^2)$",
 )
 
 plt.errorbar(
-    Q,
-    F,
-    xerr=chyba_Q,
-    yerr=chyba_F,
+    a_vys,
+    A_as[:, 0],
+    xerr=chyba_a_vys,
+    yerr=A_as[:, 1],
     fmt="o",
     color=random_color,
     ecolor="gray",
@@ -180,11 +180,22 @@ plt.errorbar(
     zorder=1,
 )
 
-plt.xlabel("$Q^2$ [µC]", fontsize=11)
+plt.xlabel("$1/a^2$ [µm]", fontsize=11)
 plt.ylabel(r"$F$ [µN]", fontsize=11)
 plt.grid(True, linestyle="--", alpha=0.6)
 plt.legend(fontsize=10)
 plt.tight_layout()
 
-svg_name = output_dir / "A_a" / f"{a}.svg"
+svg_name = output_dir / "inv_As" / f"inverzos.svg"
 plt.savefig(svg_name, format="svg")
+plt.close()
+
+epsilon_0 = 1 / (16 * np.pi * S)
+
+chyba_epsilon_0_vypocet = 1 / (16 * np.pi * S ** 2) * std_err_S
+
+print(f"{TextColor.BOLD}=== Výsledky permitivity epsilon_0 ==={TextColor.END}")
+print(
+    f"{TextColor.BOLD}{TextColor.UNDERLINE}Permitivita epsilon_0 = {round_val_err(epsilon_0, chyba_epsilon_0_vypocet, True)}*10^{-12} F/m{TextColor.END}\n " +
+    f"╚═({epsilon_0} ± {chyba_epsilon_0_vypocet})\n")
+print("====================================\n")
