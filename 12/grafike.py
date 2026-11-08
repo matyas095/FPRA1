@@ -99,7 +99,7 @@ for i, (Q, F) in enumerate(zip(Q_na_druhou, F_mat)):
 
     random_color = np.random.rand(3)
     chyba_Q = 0.004 ** 2
-    chyba_F = 0.00012 * 10 ** 6 # µN
+    chyba_F = 0.00006 * 10 ** 6 # µN
 
     plt.plot(
         Q,
