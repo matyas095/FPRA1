@@ -197,7 +197,7 @@ plt.grid(True, linestyle="--", alpha=0.6)
 plt.legend(fontsize=10)
 plt.tight_layout()
 
-svg_name = output_dir / "inv_As" / f"inverzos.svg"
+svg_name = output_dir / f"a_a.svg"
 plt.savefig(svg_name, format="svg")
 plt.close()
 
