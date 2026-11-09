@@ -62,6 +62,7 @@ F_mat = np.array([
 ]) * 10 ** 3 # mN -> µN
 
 A_as = []
+A_ideals = []
 
 for i, (Q, F) in enumerate(zip(Q_na_druhou, F_mat)):
     a = 4 + i
@@ -88,6 +89,7 @@ for i, (Q, F) in enumerate(zip(Q_na_druhou, F_mat)):
     (A_a_ideal), pcov = curve_fit(idealni_model, Q, F)
 
     std_err_A = np.sqrt(np.diag(pcov))[0]
+    A_ideals.append([A_a_ideal[0], std_err_A])
 
     print(f"{TextColor.BOLD}=== Výsledky ideálního (b = 0) ==={TextColor.END}")
     print(
@@ -138,6 +140,7 @@ a_vzd = np.array([
     4, 5, 6, 7, 8
 ]) * 1e-2 # m
 a_vys = 1 / (a_vzd ** 2)
+print(a_vys)
 
 def model_prochazejici_pocatkem(x, S):
     return S * x
@@ -157,7 +160,7 @@ print("====================================\n")
 plt.figure(figsize=(9, 5))
 
 random_color = np.random.rand(3)
-chyba_a_vys = 0.2
+chyba_a_vys = 0.04
 
 a_vys_prodlouzene = np.linspace(-0.05, max(a_vys) * 1.1, 1000)
 
@@ -205,5 +208,84 @@ chyba_epsilon_0_vypocet = 1 / (16 * np.pi * S ** 2) * std_err_S
 print(f"{TextColor.BOLD}=== Výsledky permitivity epsilon_0 ==={TextColor.END}")
 print(
     f"{TextColor.BOLD}{TextColor.UNDERLINE}Permitivita epsilon_0 = {round_val_err(epsilon_0, chyba_epsilon_0_vypocet, True)}*10^{-12} F/m{TextColor.END}\n " +
+    f"╚═({epsilon_0} ± {chyba_epsilon_0_vypocet})\n")
+print("====================================\n")
+
+
+
+# ========================
+
+
+# IDEAL A_a
+A_as_ideal = np.array(A_ideals)
+
+def model_prochazejici_pocatkem_posun(x, S, q):
+    return S * x + q
+
+
+popt, pcovS = curve_fit(model_prochazejici_pocatkem_posun, a_vys, A_as_ideal[:, 0])
+perr = np.sqrt(np.diag(pcovS))
+std_err_S = perr[0]
+std_err_q = perr[1]
+
+S, q = popt
+print("\n\n\n")
+print(f"{TextColor.BOLD}=== Výsledky sklonu S ==={TextColor.END}")
+print(
+    f"{TextColor.BOLD}{TextColor.UNDERLINE}Sklon S = {round_val_err(S, std_err_S, True)}{TextColor.END}\n " +
+    f"╚═({S} ± {std_err_S})\n")
+print(
+    f"{TextColor.BOLD}{TextColor.UNDERLINE}posun q = {round_val_err(q, std_err_q, True)}{TextColor.END}\n " +
+    f"╚═({q} ± {std_err_q})\n")
+print("====================================\n")
+
+plt.figure(figsize=(9, 5))
+
+a_vys_prodlouzene = np.linspace(-0.05, max(a_vys) * 1.1, 1000)
+
+plt.plot(
+    a_vys_prodlouzene,
+    S * a_vys_prodlouzene + q,
+    color="red",
+    label=fr"Fit: $A_a = S \cdot 1/a^2 + q$",
+)
+
+plt.errorbar(
+    a_vys,
+    A_as_ideal[:, 0],
+    xerr=chyba_a_vys,
+    yerr=A_as_ideal[:, 1],
+    fmt="o",
+    color="black",
+    ecolor="gray",
+    elinewidth=1,
+    capsize=2,
+    markersize=5,
+    label=f"Vypočtená data s chybami",
+    zorder=1,
+)
+
+plt.xlabel(r"$1/a^2$ [$\mathrm{m^{-2}}$]", fontsize=11)
+plt.ylabel(r"$A_a$ [$\mathrm{N/C^2}$]", fontsize=11)
+
+comma_formatter = FuncFormatter(lambda x, pos: f"{x:.2f}".replace(".", ","))
+plt.gca().xaxis.set_major_formatter(comma_formatter)
+plt.gca().yaxis.set_major_formatter(comma_formatter)
+
+plt.grid(True, linestyle="--", alpha=0.6)
+plt.legend(fontsize=10)
+plt.tight_layout()
+
+svg_name = output_dir / f"a_ideals.svg"
+plt.savefig(svg_name, format="svg")
+plt.close()
+
+epsilon_0 = 1 / (16 * np.pi * S)
+
+chyba_epsilon_0_vypocet = 1 / (16 * np.pi * S ** 2) * std_err_S
+
+print(f"{TextColor.BOLD}=== Výsledky permitivity epsilon_0_ideal ==={TextColor.END}")
+print(
+    f"{TextColor.BOLD}{TextColor.UNDERLINE}Permitivita epsilon_0_ideal = {round_val_err(epsilon_0, chyba_epsilon_0_vypocet, True)}*10^{-12} F/m{TextColor.END}\n " +
     f"╚═({epsilon_0} ± {chyba_epsilon_0_vypocet})\n")
 print("====================================\n")
