@@ -40,7 +40,7 @@ Q = np.array([
     [
         1, 7, 19, 20, 24  # a = 8
     ]
-]) # µC
+]) # nC
 Q_na_druhou = Q ** 2
 
 F_mat = np.array([
@@ -61,10 +61,28 @@ F_mat = np.array([
     ]
 ]) * 10 ** 3 # mN -> µN
 
+chyba_Q_all = np.array([
+    [
+        3.1, 3.1, 3.2, 3.2, 3.3 # a = 4
+    ],
+    [
+        3.1, 3.1, 3.1, 3.2, 3.3 # a = 5
+    ],
+    [
+        3.1, 3.1, 3.1, 3.2, 3.2 # a = 6
+    ],
+    [
+        3.1, 3.1, 3.2, 3.2, 3.3 # a = 7
+    ],
+    [
+        3.1, 3.1, 3.1, 3.1, 3.2 # a = 8
+    ],
+]) ** 2
+
 A_as = []
 A_ideals = []
 
-for i, (Q, F) in enumerate(zip(Q_na_druhou, F_mat)):
+for i, (Q, F, chyba_Q) in enumerate(zip(Q_na_druhou, F_mat, chyba_Q_all)):
     a = 4 + i
     print(f"{TextColor.BOLD}{TextColor.UNDERLINE}{TextColor.GREEN}Pro vzdálenost a = {a} cm:{TextColor.END}")
 
@@ -100,7 +118,6 @@ for i, (Q, F) in enumerate(zip(Q_na_druhou, F_mat)):
     plt.figure(figsize=(9, 5))
 
     random_color = np.random.rand(3)
-    chyba_Q = 0.004 ** 2
     chyba_F = 0.00006 * 10 ** 6 # µN
 
     plt.plot(
