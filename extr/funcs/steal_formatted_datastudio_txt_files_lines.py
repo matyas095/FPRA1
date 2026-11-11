@@ -1,6 +1,7 @@
 import sys
 import os
 import re
+import glob
 import argparse
 import numpy as np
 import pandas as pd
@@ -16,18 +17,18 @@ while not (root_dir / "extr").exists() and root_dir != root_dir.parent:
 def process_txt_file(filepath, output_path=None, copy_to_clipboard=False):
     if not os.path.exists(filepath):
         print(f"Error: File '{filepath}' not found.")
-        sys.exit(1)
+        return
 
     if output_path and not os.path.exists(output_path):
-        print(f"Error: Path '{output_path}' not found.")
-        sys.exit(1)
+        print(f"Error: Output path '{output_path}' not found.")
+        return
 
     with open(filepath, 'r', encoding='utf-8') as f:
         lines = f.readlines()
 
     if len(lines) < 3:
-        print("Error: File format is too short or invalid.")
-        sys.exit(1)
+        print(f"Error: File '{filepath}' format is too short or invalid.")
+        return
 
     name_liner = lines[0].strip()
     header_line = lines[1].strip()
@@ -49,8 +50,8 @@ def process_txt_file(filepath, output_path=None, copy_to_clipboard=False):
             data_rows.append(parts[:2])
 
     if not data_rows:
-        print("Error: No valid data rows found.")
-        sys.exit(1)
+        print(f"Error: No valid data rows found in '{filepath}'.")
+        return
 
     df = pd.DataFrame(data_rows, columns=[col1_name, col2_name])
     for col in df.columns:
@@ -72,7 +73,7 @@ def process_txt_file(filepath, output_path=None, copy_to_clipboard=False):
 
     excel_path = f"{combined_path}/{base_name}.xlsx"
     df.to_excel(excel_path, index=False)
-    print(f"Exported successfully to Excel: {base_name} - To Path: {combined_path}")
+    print(f"Exported successfully to Excel: {base_name}.xlsx - To Path: {combined_path}")
 
     if copy_to_clipboard:
         try:
@@ -83,15 +84,31 @@ def process_txt_file(filepath, output_path=None, copy_to_clipboard=False):
             df_clipboard.to_clipboard(index=False, header=False)
             print("Successfully copied DataFrame to clipboard (without headers, with comma decimals)!")
         except Exception as e:
-            print(f"Warning: Could not copy to clipboard (missing clipboard dependency like xclip/xsel on Linux?): {e}")
+            print(f"Warning: Could not copy to clipboard: {e}")
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Process formatted Data Studio text files.")
-    parser.add_argument("filepath", type=str, help="Path to the txt file")
-    parser.add_argument("output_path", type=str, nargs="?", default=None, help="Optional output path")
+    parser = argparse.ArgumentParser(description="Process formatted Data Studio text files in batch.")
+    parser.add_argument("filepaths", nargs="+", type=str, help="Path(s) to the txt file(s) or pattern (e.g., *.txt)")
+    parser.add_argument("-out", "--output", type=str, default=None, help="Optional output directory path")
     parser.add_argument("-ct", "--clipboard", action="store_true", help="Copy DataFrame to clipboard")
 
     args = parser.parse_args()
 
-    process_txt_file(args.filepath, args.output_path, args.clipboard)
+    resolved_files = []
+    for pattern in args.filepaths:
+        matched = glob.glob(pattern)
+        if matched:
+            resolved_files.extend(matched)
+        else:
+            resolved_files.append(pattern)
+
+    resolved_files = list(dict.fromkeys(resolved_files))
+
+    if not resolved_files:
+        print("Error: No files matched the given path(s).")
+        sys.exit(1)
+
+    for filepath in resolved_files:
+        print(f"\nProcessing: {filepath}")
+        process_txt_file(filepath, args.output, args.clipboard)
