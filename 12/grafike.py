@@ -142,7 +142,7 @@ for i, (Q, F, chyba_Q) in enumerate(zip(Q_na_druhou, F_mat, chyba_Q_all)):
         zorder=1,
     )
 
-    plt.xlabel("$Q^2$ [µC]", fontsize=11)
+    plt.xlabel("$Q^2$ [nC]", fontsize=11)
     plt.ylabel(r"$F$ [µN]", fontsize=11)
     plt.grid(True, linestyle="--", alpha=0.6)
     plt.legend(fontsize=10)
@@ -204,7 +204,7 @@ plt.errorbar(
 )
 
 plt.xlabel(r"$1/a^2$ [$\mathrm{m^{-2}}$]", fontsize=11)
-plt.ylabel(r"$A_a$ [$\mathrm{N/C^2}$]", fontsize=11)
+plt.ylabel(r"$A_a$ [$\mathrm{µN/nC^2}$]", fontsize=11)
 
 comma_formatter = FuncFormatter(lambda x, pos: f"{x:.2f}".replace(".", ","))
 plt.gca().xaxis.set_major_formatter(comma_formatter)
@@ -283,7 +283,7 @@ plt.errorbar(
 )
 
 plt.xlabel(r"$1/a^2$ [$\mathrm{m^{-2}}$]", fontsize=11)
-plt.ylabel(r"$A_a$ [$\mathrm{N/C^2}$]", fontsize=11)
+plt.ylabel(r"$A_a$ [$\mathrm{µN/nC^2}$]", fontsize=11)
 
 comma_formatter = FuncFormatter(lambda x, pos: f"{x:.2f}".replace(".", ","))
 plt.gca().xaxis.set_major_formatter(comma_formatter)

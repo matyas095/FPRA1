@@ -1,15 +1,25 @@
 import sys
 import os
 import re
+import argparse
 import numpy as np
 import pandas as pd
+from pathlib import Path
+
+current_dir = Path(__file__).resolve().parent
+
+root_dir = current_dir
+while not (root_dir / "extr").exists() and root_dir != root_dir.parent:
+    root_dir = root_dir.parent
 
 
-# TO RUN: python3 steal_formatted_datastudio_txt_files_lines.py $PATH_TO_TXT
-
-def process_txt_file(filepath):
+def process_txt_file(filepath, output_path=None, copy_to_clipboard=False):
     if not os.path.exists(filepath):
         print(f"Error: File '{filepath}' not found.")
+        sys.exit(1)
+
+    if output_path and not os.path.exists(output_path):
+        print(f"Error: Path '{output_path}' not found.")
         sys.exit(1)
 
     with open(filepath, 'r', encoding='utf-8') as f:
@@ -51,17 +61,37 @@ def process_txt_file(filepath):
     c1_clean = re.sub(r'[\s\(\)\#\/\,\.]+', '_', col1_name).strip('_')
     c2_clean = re.sub(r'[\s\(\)\#\/\,\.]+', '_', col2_name).strip('_')
 
-    np.save(f"{base_name}_{c1_clean}.npy", df[col1_name].to_numpy())
-    np.save(f"{base_name}_{c2_clean}.npy", df[col2_name].to_numpy())
-    print(f"Saved NumPy files: {base_name}_{c1_clean}.npy and {base_name}_{c2_clean}.npy")
+    if output_path is not None:
+        combined_path = Path(output_path).resolve()
+    else:
+        combined_path = current_dir
 
-    excel_path = f"{base_name}.xlsx"
+    np.save(f"{combined_path}/{base_name}_{c1_clean}.npy", df[col1_name].to_numpy())
+    np.save(f"{combined_path}/{base_name}_{c2_clean}.npy", df[col2_name].to_numpy())
+    print(f"Saved NumPy files: {base_name}_{c1_clean}.npy and {base_name}_{c2_clean}.npy - To Path: {combined_path}")
+
+    excel_path = f"{combined_path}/{base_name}.xlsx"
     df.to_excel(excel_path, index=False)
-    print(f"Exported successfully to Excel: {excel_path}")
+    print(f"Exported successfully to Excel: {base_name} - To Path: {combined_path}")
+
+    if copy_to_clipboard:
+        try:
+            df_clipboard = df.copy()
+            for col in df_clipboard.columns:
+                df_clipboard[col] = df_clipboard[col].astype(str).str.replace('.', ',')
+
+            df_clipboard.to_clipboard(index=False, header=False)
+            print("Successfully copied DataFrame to clipboard (without headers, with comma decimals)!")
+        except Exception as e:
+            print(f"Warning: Could not copy to clipboard (missing clipboard dependency like xclip/xsel on Linux?): {e}")
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: python process_data.py <path_to_txt_file>")
-        sys.exit(1)
-    process_txt_file(sys.argv[1])
+    parser = argparse.ArgumentParser(description="Process formatted Data Studio text files.")
+    parser.add_argument("filepath", type=str, help="Path to the txt file")
+    parser.add_argument("output_path", type=str, nargs="?", default=None, help="Optional output path")
+    parser.add_argument("-ct", "--clipboard", action="store_true", help="Copy DataFrame to clipboard")
+
+    args = parser.parse_args()
+
+    process_txt_file(args.filepath, args.output_path, args.clipboard)
