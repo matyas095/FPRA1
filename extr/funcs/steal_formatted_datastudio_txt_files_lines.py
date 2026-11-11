@@ -72,8 +72,12 @@ def process_txt_file(filepath, output_path=None, copy_to_clipboard=False):
     print(f"Saved NumPy files: {base_name}_{c1_clean}.npy and {base_name}_{c2_clean}.npy - To Path: {combined_path}")
 
     excel_path = f"{combined_path}/{base_name}.xlsx"
-    df.to_excel(excel_path, index=False)
-    print(f"Exported successfully to Excel: {base_name}.xlsx - To Path: {combined_path}")
+    df_excel = df.copy()
+    for col in df_excel.columns:
+        df_excel[col] = df_excel[col].astype(str).str.replace('.', ',')
+
+    df_excel.to_excel(excel_path, index=False)
+    print(f"Exported successfully to Excel (with comma decimals): {base_name}.xlsx - To Path: {combined_path}")
 
     if copy_to_clipboard:
         try:
