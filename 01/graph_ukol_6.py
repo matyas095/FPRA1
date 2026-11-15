@@ -1,6 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 from matplotlib.ticker import FuncFormatter
+from scipy.optimize import curve_fit
 from pathlib import Path
 import sys
 
@@ -8,6 +9,10 @@ script_dir = Path(__file__).parent
 data_dir = script_dir / "data"
 output_dir = script_dir / "outputs"
 output_dir.mkdir(parents=True, exist_ok=True)
+
+# ACTUAL SCRIPTS
+from extr.funcs.rounder import round_val_err
+from extr.data.colors import TextColor
 
 # Vstupní data
 p = np.array([
@@ -104,7 +109,7 @@ plt.savefig(svg_name, format="svg")
 plt.close()
 
 # ========================
-#  Relativní chyby
+#  KInetické energie
 # ========================
 plt.figure(figsize=(9, 5))
 
@@ -143,5 +148,92 @@ plt.legend(fontsize=10)
 plt.tight_layout()
 
 svg_name = output_dir / "kineticka_energie_6.svg"
+plt.savefig(svg_name, format="svg")
+plt.close()
+
+
+# ========================
+#  Proložení hybností
+# ========================
+p_int = np.array([
+    0.07330, 0.17557, 0.22616
+]) * 1000 # N ⋅ s -> g ⋅ m ⋅ s⁻¹
+p_int_chyby = np.array([
+    0.003444209714, 0.01037216949, 0.004543498407
+]) * 1000 # N ⋅ s -> g ⋅ m ⋅ s⁻¹
+
+p_rych = np.array([
+    70.97112, 128.5474608, 171.1607238
+]) # g ⋅ m ⋅ s⁻¹
+p_rych_chyby = np.array([
+    1.740891755, 2.122273655, 4.290779864
+]) # g ⋅ m ⋅ s⁻¹
+
+labels = ["Konfigurace první startovací rychlost", "Konfigurace druhá startovací rychlost", "Konfigurace třetí startovací rychlost"]
+colors = [["o", "blue"], ["s", "red"], ["p", "green"]]
+
+
+plt.figure(figsize=(9, 5))
+
+for i, (pint, pinterr, prych, prycherr) in enumerate(zip(p_int, p_int_chyby, p_rych, p_rych_chyby)):
+    plt.errorbar(
+        prych, pint, xerr=prycherr, yerr=pinterr,
+        fmt=colors[i][0], color=colors[i][1], ecolor="lightblue", elinewidth=1,
+        capsize=2, markersize=5, label=labels[i], zorder=2
+    )
+
+# plt.errorbar(
+#     p_rych[0], p_int[0], xerr=E_chyba_m1, yerr=p_int_chyby[0],
+#     fmt="o", color="blue", ecolor="lightblue", elinewidth=1,
+#     capsize=2, markersize=5, label="Konfigurace první startovací rychlost", zorder=2
+# )
+#
+# plt.errorbar(
+#     E_m2, E_carka_m2, xerr=E_chyba_m2, yerr=E_carka_chyba_m2,
+#     fmt="s", color="red", ecolor="lightcoral", elinewidth=1,
+#     capsize=2, markersize=5, label="Konfigurace druhá startovací rychlost", zorder=2
+# )
+
+def ideal_pripad(x, a, b):
+    return a * x + b
+
+popt, pcov = curve_fit(ideal_pripad, p_rych, p_int)
+std_errs = np.sqrt(np.diag(pcov))
+
+a, b = popt
+chyba_a, chyba_b = std_errs
+
+print(f"{TextColor.BOLD}=== Výsledky lineárního fitu ==={TextColor.END}")
+print(
+    f"{TextColor.BOLD}{TextColor.UNDERLINE}Sklon a = {round_val_err(a, chyba_a, True)}{TextColor.END}\n " +
+    f"╚═({a} ± {chyba_a})\n")
+print(
+    f"{TextColor.BOLD}{TextColor.UNDERLINE}Posun b = {round_val_err(b, chyba_b, True)}{TextColor.END}\n " +
+    f"╚═({b} ± {chyba_b})\n")
+print("====================================\n")
+
+max_val = np.max(np.concatenate((p_int, p_rych)))
+x_vals = np.linspace(0, max_val * 1.1, 1000)
+
+plt.plot(
+    p_rych,
+    a * p_rych + b,
+    color="red",
+    label=r"Fit: $\Delta p_{\text{int}} = a\cdot x + b$",
+)
+
+
+
+plt.xlabel(r"$\Delta p_{rych}$ [$\mathrm{g \cdot m \cdot s^{-1}}$]", fontsize=11)
+plt.ylabel(r"$\Delta p_{int}$ [$\mathrm{g \cdot m \cdot s^{-1}}$]", fontsize=11)
+
+# plt.gca().xaxis.set_major_formatter(comma_formatter)
+# plt.gca().yaxis.set_major_formatter(comma_formatter)
+
+plt.grid(True, linestyle="--", alpha=0.6)
+plt.legend(fontsize=10)
+plt.tight_layout()
+
+svg_name = output_dir / "zavislost_pint_na_prych.svg"
 plt.savefig(svg_name, format="svg")
 plt.close()
