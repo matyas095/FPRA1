@@ -11,10 +11,10 @@ output_dir.mkdir(parents=True, exist_ok=True)
 
 # Vstupní data
 p = np.array([
-    80, 64, 142, 119, 180, 160
+    76, 64, 142, 119, 180, 160
 ]) # g * m * s^{-1}
 p_chyba = np.array([
-    10, 2, 2, 2, 10, 4
+    3, 2, 2, 2, 10, 4
 ]) # g * m * s^{-1}
 p_m1 = p[0::2]
 p_chyba_m1 = p_chyba[0::2]
@@ -22,10 +22,10 @@ p_m2 = p[1::2]
 p_chyba_m2 = p_chyba[1::2]
 
 p_carka = np.array([
-    62, 73, 129, 130, 170, 140
+    60, 73, 129, 130, 170, 140
 ]) # g * m * s^{-1}
 p_carka_chyba = np.array([
-    17, 4, 2, 10, 10, 10
+    10, 4, 2, 10, 10, 10
 ]) # g * m * s^{-1}
 p_carka_m1 = p_carka[0::2]
 p_carka_chyba_m1 = p_carka_chyba[0::2]
