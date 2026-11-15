@@ -23,7 +23,7 @@ err_m1 = absolutni_chyby_v[0::2]
 v_m2 = rychlosti_v[1::2]
 err_m2 = absolutni_chyby_v[1::2]
 
-comma_formatter = FuncFormatter(lambda x, pos: f"{x:.2f}".replace(".", ","))
+comma_formatter = FuncFormatter(lambda x, pos: f"{x:.3f}".replace(".", ","))
 
 # ========================
 #  Absolutní chyba
