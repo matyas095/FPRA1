@@ -276,7 +276,11 @@ for j, (t_arr, F_arr) in enumerate(zip(t_s, F_s)):
     print(f"Kontrola F{j + 1}: {len(F_arr)}")
     totalAreas.append([])
 
+    subfigures = []
+
     for i, (t, F) in enumerate(zip(t_arr, F_arr)):
+        t = np.array(t)
+        F = np.array(F)
         plt.figure(figsize=(9, 5))
         plt.errorbar(
             t, F, xerr=t_chyba, yerr=F_chyba,
@@ -285,28 +289,63 @@ for j, (t_arr, F_arr) in enumerate(zip(t_s, F_s)):
         )
 
         # area = np.trapezoid(F, t)
+        area_simpson_mN = simpson(F * 1000, x=t)
+        integral_coarse_mN = simpson(F[::2] * 1000, t[::2])
         area_simpson = simpson(F, x=t)
         integral_coarse = simpson(F[::2], t[::2])
 
         error_estimate = abs(area_simpson - integral_coarse) / 15
         totalAreas[j].append((area_simpson, error_estimate))
 
-        plt.fill_between(t, F, color="skyblue", alpha=0.4, label=f"Plocha = {round_val_err(area_simpson, error_estimate, True)}")
-
+        label_fill = f"S = {round_val_err(area_simpson_mN, integral_coarse_mN, True)} [$\\mathrm{{mN \\cdot s}}$]"
+        plt.fill_between(t, F, color="skyblue", alpha=0.4, label=label_fill)
 
         plt.xlabel(r"$t$ [$\mathrm{s}$]", fontsize=11)
         plt.ylabel(r"$F$ [$\mathrm{N}$]", fontsize=11)
-
-        # plt.gca().xaxis.set_major_formatter(comma_formatter)
-        # plt.gca().yaxis.set_major_formatter(comma_formatter)
 
         plt.grid(True, linestyle="--", alpha=0.6)
         plt.legend(fontsize=10)
         plt.tight_layout()
 
         svg_name = output_dir / f"F{j + 1}" / f"{i + 1}.svg"
+        svg_name.parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(svg_name, format="svg")
         plt.close()
+
+        label_letter = chr(ord("a") + i)
+
+        subfigures_content = rf"""\begin{{subfigure}}[t]{{0.3\textwidth}}
+            \centering
+            \includesvg[width=\textwidth]{{img/graphs/6/F{j + 1}/{i + 1}}}
+            \caption{{
+                Plocha {label_fill.replace("[", "").replace("]", "")}
+            }}
+            \label{{fig:integrales-{j + 1}{label_letter}}}
+        \end{{subfigure}}"""
+
+        if (i + 1) % 3 == 0 and i < len(t_arr) - 1:
+            subfigures_content += "\n\n    \\vspace{0.5em}\n"
+        elif i < len(t_arr) - 1:
+            subfigures_content += "%\n    \\hfill\n"
+
+        subfigures.append(subfigures_content)
+
+    latex_content = rf"""\begin{{figure}}[H]
+        \centering
+
+        {"".join(subfigures)}
+
+        \caption{{
+            Naměřené hodnoty síly $F$ v závislosti na čase $t$. Výpočet plochy pod integrálem. Vypočteno skrze program Python \cite{{GitHubMAT}}.
+        }}
+        \label{{fig:integrales-{j + 1}}}
+    \end{{figure}}
+    """
+
+    file_name = output_dir / "tex_inputs" / f"F{j + 1}.tex"
+    file_name.parent.mkdir(parents=True, exist_ok=True)
+    with open(file_name, "w", encoding="utf-8") as f:
+        f.write(latex_content)
 
 
 # ========================
@@ -365,7 +404,6 @@ for i, (sublist, v_arr, v_prime_arr) in enumerate(zip(totalAreas, v_s, v_prime_s
     sigma_delta_p_rych = abs(delta_p_int - delta_p_rych) / delta_p_rych_err
     print("Δp_rych :", round_val_err(delta_p_rych, delta_p_rych_err, True),
           f"δ = {delta_delta_p_rych} %", f"σ = {sigma_delta_p_rych}")
-
 
     # for j, (val, err) in enumerate(sublist):
     #     print(i + 1, j + 1, val, err)
