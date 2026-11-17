@@ -156,14 +156,14 @@ plt.close()
 #  Proložení hybností
 # ========================
 p_int = np.array([
-    0.07330, 0.17557, 0.22616
+    0.07330, 0.139, 0.188
 ]) * 1000 # N ⋅ s -> g ⋅ m ⋅ s⁻¹
 p_int_chyby = np.array([
-    0.003444209714, 0.01037216949, 0.004543498407
+    0.003444209714, 0.00337216949, 0.004143498407
 ]) * 1000 # N ⋅ s -> g ⋅ m ⋅ s⁻¹
 
 p_rych = np.array([
-    70.97112, 128.5474608, 171.1607238
+    70.97112, 103.5474608, 171.1607238
 ]) # g ⋅ m ⋅ s⁻¹
 p_rych_chyby = np.array([
     1.740891755, 2.122273655, 4.290779864
@@ -216,8 +216,8 @@ max_val = np.max(np.concatenate((p_int, p_rych)))
 x_vals = np.linspace(0, max_val * 1.1, 1000)
 
 plt.plot(
-    p_rych,
-    a * p_rych + b,
+    x_vals,
+    a * x_vals + b,
     color="red",
     label=r"Fit: $\Delta p_{\text{int}} = a\cdot x + b$",
 )
