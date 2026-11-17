@@ -295,9 +295,10 @@ for j, (t_arr, F_arr) in enumerate(zip(t_s, F_s)):
         integral_coarse = simpson(F[::2], t[::2])
 
         error_estimate = abs(area_simpson - integral_coarse) / 15
+        error_estimate_coarse_mN = abs(area_simpson_mN - integral_coarse_mN) / 15
         totalAreas[j].append((area_simpson, error_estimate))
 
-        label_fill = f"S = {round_val_err(area_simpson_mN, integral_coarse_mN, True)} [$\\mathrm{{mN \\cdot s}}$]"
+        label_fill = f"S = {round_val_err(area_simpson_mN, error_estimate_coarse_mN, True)} [$\\mathrm{{mN \\cdot s}}$]"
         plt.fill_between(t, F, color="skyblue", alpha=0.4, label=label_fill)
 
         plt.xlabel(r"$t$ [$\mathrm{s}$]", fontsize=11)
@@ -330,13 +331,25 @@ for j, (t_arr, F_arr) in enumerate(zip(t_s, F_s)):
 
         subfigures.append(subfigures_content)
 
+    totalAreas_vals = np.array([item[0] for item in totalAreas[j]]) * 1000
+
+    suma_S = sum(totalAreas_vals) / len(totalAreas_vals)
+    std_S = np.std(totalAreas_vals, ddof=1) / np.sqrt(len(totalAreas_vals))
+
+    if j + 1 == 1:
+        addon = "Pro první stupeň odrazu pístku"
+    elif j + 1 == 2:
+        addon = "Pro druhý stupeň odrazu pístku"
+    else:
+        addon = "Pro třetí stupeň odrazu pístku"
+
     latex_content = rf"""\begin{{figure}}[H]
         \centering
 
         {"".join(subfigures)}
 
         \caption{{
-            Naměřené hodnoty síly $F$ v závislosti na čase $t$. Výpočet plochy pod integrálem. Vypočteno skrze program Python \cite{{GitHubMAT}}.
+            Naměřené hodnoty síly $F$ v závislosti na čase $t$. Výpočet plochy pod integrálem, kde celková plocha vychází $S={round_val_err(suma_S, std_S, True).replace("±", r"\pm")}\,\mathrm{{mN\cdot s^{{-1}}}}$, vypočtené jako aritmetický průměr a její směrodatná odchylka. {addon}. Vypočteno skrze program Python \cite{{GitHubMAT}}.
         }}
         \label{{fig:integrales-{j + 1}}}
     \end{{figure}}
@@ -393,7 +406,7 @@ for i, (sublist, v_arr, v_prime_arr) in enumerate(zip(totalAreas, v_s, v_prime_s
     errs = data[:, 1]
 
     delta_p_int = np.sum(vals) / len(vals)
-    delta_p_int_err = np.std(vals)
+    delta_p_int_err = np.std(vals, ddof=1) / np.sqrt(len(vals))
     delta_delta_p_int = delta_p_int_err / delta_p_int * 100
     print("Δp_int :", i + 1, round_val_err(delta_p_int, delta_p_int_err, True), f"δ = {delta_delta_p_int}")
 
