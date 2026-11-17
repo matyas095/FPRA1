@@ -308,7 +308,7 @@ for j, (t_arr, F_arr) in enumerate(zip(t_s, F_s)):
         plt.legend(fontsize=10)
         plt.tight_layout()
 
-        svg_name = output_dir / f"F{j + 1}" / f"{i + 1}.svg"
+        svg_name = output_dir / f"F{j + 1}" / f"F{j + 1}_{i + 1}.svg"
         svg_name.parent.mkdir(parents=True, exist_ok=True)
         plt.savefig(svg_name, format="svg")
         plt.close()
@@ -317,7 +317,7 @@ for j, (t_arr, F_arr) in enumerate(zip(t_s, F_s)):
 
         subfigures_content = rf"""\begin{{subfigure}}[t]{{0.3\textwidth}}
             \centering
-            \includesvg[width=\textwidth]{{img/graphs/6/F{j + 1}/{i + 1}}}
+            \includesvg[width=\textwidth]{{img/graphs/6/F{j + 1}/F{j + 1}_{i + 1}}}
             \caption{{
                 Plocha {label_fill.replace("[", "").replace("]", "")}
             }}
@@ -349,7 +349,7 @@ for j, (t_arr, F_arr) in enumerate(zip(t_s, F_s)):
         {"".join(subfigures)}
 
         \caption{{
-            Naměřené hodnoty síly $F$ v závislosti na čase $t$. Výpočet plochy pod integrálem, kde celková plocha vychází $S={round_val_err(suma_S, std_S, True).replace("±", r"\pm")}\,\mathrm{{mN\cdot s^{{-1}}}}$, vypočtené jako aritmetický průměr a její směrodatná odchylka. {addon}. Vypočteno skrze program Python \cite{{GitHubMAT}}.
+            Naměřené hodnoty síly $F$ v závislosti na čase $t$. Výpočet plochy pod integrálem, kde celková plocha vychází $S={round_val_err(suma_S, std_S, True).replace("±", r"\pm")}\,\mathrm{{mN\cdot s}}$, vypočtené jako aritmetický průměr a její směrodatná odchylka. {addon}. Vypočteno skrze program Python \cite{{GitHubMAT}}.
         }}
         \label{{fig:integrales-{j + 1}}}
     \end{{figure}}
