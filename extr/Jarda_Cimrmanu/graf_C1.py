@@ -1,8 +1,6 @@
 import matplotlib.pyplot as plt
-import matplotlib.ticker as ticker
 from pathlib import Path
 import numpy as np
-from sympy.printing import latex
 
 script_dir = Path(__file__).parent
 data_dir = script_dir / "inputs" / "1"
@@ -80,7 +78,7 @@ plt.plot(
     color="r",
     linestyle="-",
     linewidth=2,
-    label=f"Fit 1: $y = a_1 \\cdot x + b_1$",
+    label="Fit 1: $y = a_1 \\cdot x + b_1$",
     zorder=2,
 )
 
@@ -90,7 +88,7 @@ plt.plot(
     color="b",
     linestyle="-",
     linewidth=2,
-    label=f"Fit 3: $y = a_2 \\cdot x + b_2$",
+    label="Fit 2: $y = a_2 \\cdot x + b_2$",
     zorder=2,
 )
 

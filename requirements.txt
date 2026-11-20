@@ -1,6 +1,7 @@
 matplotlib==3.11.2
-numpy==2.5.4
+numpy==2.5.5
 pandas==3.1.1
 plotly==7.1.0
 scipy==1.18.1
+siunitters==0.4.0
 sympy==1.14.0
